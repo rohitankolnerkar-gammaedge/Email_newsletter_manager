@@ -38,5 +38,11 @@ async def login(payload: UserLogin, db: AsyncSession = Depends(get_async_db)):
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    access_token = create_access_token({"sub": str(user.id), "role": user.role, "org_id": user.organization_id})
+    access_token = create_access_token(
+    subject=str(user.id),
+    extra_claims={
+        "role": user.role,
+        "org_id": user.organization_id,
+    },)
+
     return {"access_token": access_token, "token_type": "bearer"}

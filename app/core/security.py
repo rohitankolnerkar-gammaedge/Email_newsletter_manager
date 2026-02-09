@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -72,23 +72,31 @@ def decode_access_token(token: str) -> Dict[str, Any]:
 
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+security = HTTPBearer()
+
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_async_db),
 ) -> User:
+    token = credentials.credentials
     payload = decode_access_token(token)
 
     user_id = payload.get("sub")
     if not user_id:
-        raise HTTPException(status_code=401, detail="Invalid token payload")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token payload",
+        )
+
 
     result = await db.execute(
         select(User).where(User.id == int(user_id))
     )
     user = result.scalar_one_or_none()
+    print("AUTH HEADER RECEIVED:", credentials)
+
 
     if not user:
         raise HTTPException(status_code=401, detail="User not found")

@@ -40,3 +40,8 @@ class Campaign(Base):
     )
     newsletter = relationship("Newsletter", lazy="selectin")
     organization = relationship("Organization", lazy="selectin")
+    emails = relationship(
+        "CampaignEmail",
+        back_populates="campaign",
+        cascade="all, delete-orphan",
+    )

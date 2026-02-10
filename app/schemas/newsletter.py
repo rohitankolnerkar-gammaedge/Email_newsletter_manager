@@ -1,13 +1,20 @@
 from datetime import datetime
-from pydantic import fields,EmailStr,BaseModel
 from typing import Optional
+
+from pydantic import BaseModel
+
+
 class NewsletterBase(BaseModel):
-    subject:str
-    content:str
+    subject: str
+    content: str
+
+
 class NewsletterCreate(NewsletterBase):
-    pass  
+    pass
+
+
 class NewsletterCreateRequest(BaseModel):
-    newsletter:NewsletterCreate
+    newsletter: NewsletterCreate
 
 
 class NewsletterResponse(NewsletterBase):
@@ -17,9 +24,8 @@ class NewsletterResponse(NewsletterBase):
 
     class Config:
         from_attributes = True
+
+
 class NewsletterUpdate(BaseModel):
     subject: Optional[str] = None
     content: Optional[str] = None
-
-
-

@@ -1,4 +1,4 @@
-'''from pydantic import fields,EmailStr
+"""from pydantic import fields,EmailStr
 from datetime import datetime
 from pydantic import BaseModel
 class SubscriberBase(BaseModel):
@@ -14,13 +14,11 @@ class SubscriberResponseBase(SubscriberBase):
     is_active: bool
     created_at: datetime
 class SubscriberResponse(BaseModel):
-    single:SubscriberResponseBase  '''
+    single:SubscriberResponseBase  """
 
- 
-
-from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
+from pydantic import BaseModel, EmailStr
 
 
 class SubscriberCreate(BaseModel):
@@ -37,7 +35,5 @@ class SubscriberResponse(BaseModel):
         from_attributes = True
 
 
-
 class SubscribePublicResponse(BaseModel):
     message: str
-

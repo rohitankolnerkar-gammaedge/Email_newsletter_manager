@@ -1,8 +1,11 @@
-from pydantic import BaseModel
 from datetime import datetime
+
+from pydantic import BaseModel
+
 
 class CampaignCreate(BaseModel):
     newsletter_id: int
+
 
 class CampaignResponse(BaseModel):
     id: int

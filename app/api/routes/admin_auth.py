@@ -1,13 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.security import create_access_token, hash_password, verify_password
 from app.db.session import get_async_db
-from app.models.users import User
 from app.models.organization import Organization
-from app.core.security import hash_password,verify_password,create_access_token
-from app.schemas.auth import UserCreate,UserLogin,Token
+from app.models.users import User
+from app.schemas.auth import Token, UserCreate, UserLogin
 
 router = APIRouter()
+
 
 @router.post("/register", response_model=dict)
 async def register(user: UserCreate, db: AsyncSession = Depends(get_async_db)):
@@ -24,11 +26,12 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_async_db)):
         email=user.email,
         password_hash=hash_password(user.password),
         role=user.role,
-        organization_id=org.id
+        organization_id=org.id,
     )
     db.add(new_user)
     await db.commit()
     return {"message": "User created successfully"}
+
 
 @router.post("/login", response_model=Token)
 async def login(payload: UserLogin, db: AsyncSession = Depends(get_async_db)):
@@ -39,10 +42,11 @@ async def login(payload: UserLogin, db: AsyncSession = Depends(get_async_db)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     access_token = create_access_token(
-    subject=str(user.id),
-    extra_claims={
-        "role": user.role,
-        "org_id": user.organization_id,
-    },)
+        subject=str(user.id),
+        extra_claims={
+            "role": user.role,
+            "org_id": user.organization_id,
+        },
+    )
 
     return {"access_token": access_token, "token_type": "bearer"}

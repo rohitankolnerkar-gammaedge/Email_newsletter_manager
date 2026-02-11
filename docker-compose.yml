@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  app:
+    image: rohitankolnerkargamma/email-newsletter-manager:latest
+    container_name: email-newsletter-manager
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env

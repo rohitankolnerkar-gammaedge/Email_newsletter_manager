@@ -1,17 +1,18 @@
-from typing import cast
-
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 from app.core.config import DATABASE_URL
 
-engine = create_async_engine(
-    cast(str, DATABASE_URL),
-    echo=True,
-    pool_pre_ping=True,
-    connect_args={
-        "statement_cache_size": 0,
-    },
-)
+engine = None
+TestingSessionLocal = None
+
+if DATABASE_URL:
+    engine = create_async_engine(DATABASE_URL, echo=True)
+    TestingSessionLocal = sessionmaker(
+        bind=engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+    )
 
 
 SessionLocal = async_sessionmaker(

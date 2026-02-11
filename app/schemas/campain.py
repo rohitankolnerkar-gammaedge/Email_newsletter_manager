@@ -9,6 +9,8 @@ class CampaignCreate(BaseModel):
 
 class CampaignResponse(BaseModel):
     id: int
+    organization_id: int
+    created_by: int
     newsletter_id: int
     status: str
     created_at: datetime

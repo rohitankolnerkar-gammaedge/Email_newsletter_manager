@@ -1,7 +1,8 @@
-# Base image
-FROM python:3.11-slim
+# ----------------------
+# Stage 1: Base
+# ----------------------
+FROM python:3.11-slim AS base
 
-# Set working directory
 WORKDIR /app
 
 # Copy requirements
@@ -13,7 +14,22 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy app code
 COPY . .
 
-# Expose port (FastAPI default)
+# ----------------------
+# Stage 2: Test
+# ----------------------
+FROM base AS test
+
+# Install testing dependencies
+RUN pip install --no-cache-dir pytest pytest-asyncio httpx
+
+# Default command for test stage
+CMD ["pytest", "-v"]
+
+# ----------------------
+# Stage 3: Production
+# ----------------------
+FROM base AS prod
+
 EXPOSE 8000
 
 # Command to run FastAPI

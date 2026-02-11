@@ -37,3 +37,7 @@ class SubscriberResponse(BaseModel):
 
 class SubscribePublicResponse(BaseModel):
     message: str
+
+
+class Subscriberlist(BaseModel):
+    subscribers: list[SubscriberResponse]

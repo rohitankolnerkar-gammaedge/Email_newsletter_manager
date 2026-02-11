@@ -20,7 +20,6 @@ def send_email(
         sender_name: organization name
     """
 
-    # Create the SendGrid message using organization email
     message = Mail(
         from_email=(sender_email, sender_name),
         to_emails=to_email,

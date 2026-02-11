@@ -19,6 +19,7 @@ class NewsletterCreateRequest(BaseModel):
 
 class NewsletterResponse(NewsletterBase):
     id: int
+    organization_id: int
     status: str
     created_at: datetime
 

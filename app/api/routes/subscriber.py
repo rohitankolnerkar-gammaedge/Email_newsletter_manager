@@ -1,15 +1,21 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import APP_BASE_URL
+from app.core.security import require_admin
 from app.db.session import get_async_db
 from app.models.organization import Organization
 from app.models.subscriber import Subscriber
-from app.schemas.subscriber import SubscribePublicResponse, SubscriberCreate
+from app.models.users import User
+from app.schemas.subscriber import (
+    SubscribePublicResponse,
+    SubscriberCreate,
+    Subscriberlist,
+)
 from app.services.confirmation_email import send_confirmation_email
 
 router = APIRouter()
@@ -18,6 +24,7 @@ router = APIRouter()
 @router.post(
     "/subscribe/{company_slug}",
     response_model=SubscribePublicResponse,
+    status_code=status.HTTP_201_CREATED,
 )
 async def subscribe(
     company_slug: str,
@@ -78,7 +85,7 @@ async def subscribe(
     return {"message": "Please check your email to confirm your subscription."}
 
 
-@router.get("/confirm")
+@router.get("/confirm", status_code=status.HTTP_200_OK)
 async def confirm_subscription(token: str, db: AsyncSession = Depends(get_async_db)):
     result = await db.execute(
         select(Subscriber).where(Subscriber.confirmation_token == token)
@@ -103,3 +110,47 @@ async def confirm_subscription(token: str, db: AsyncSession = Depends(get_async_
 
     await db.commit()
     return {"" "message": "Your subscription has been confirmed."}
+
+
+@router.get(
+    "/subscriber_list",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_admin)],
+    response_model=Subscriberlist,
+)
+async def get_subscriber_list(
+    db: AsyncSession = Depends(get_async_db),
+    current_user: User = Depends(require_admin),
+):
+
+    if current_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="only admin")
+
+    result = await db.execute(select(Subscriber))
+
+    subscriber = result.scalars().all()
+
+    return Subscriberlist(subscribers=subscriber)
+
+
+@router.get(
+    "/subscriber_list/{slug}",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_admin)],
+    response_model=Subscriberlist,
+)
+async def get_subscriber_list_by_slug(
+    slug: str,
+    db: AsyncSession = Depends(get_async_db),
+    current_user: User = Depends(require_admin),
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="only admin")
+
+    result = await db.execute(
+        select(Subscriber).where(Subscriber.organization_id == slug)
+    )
+
+    subscriber = result.scalars().all()
+
+    return Subscriberlist(subscribers=subscriber)

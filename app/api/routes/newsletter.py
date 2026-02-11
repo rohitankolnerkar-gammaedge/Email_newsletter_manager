@@ -18,8 +18,10 @@ router = APIRouter()
 
 
 @router.post(
-    "/",
+    "/create_newsletter",
     dependencies=[Depends(require_admin)],
+    status_code=status.HTTP_201_CREATED,
+    response_model=NewsletterResponse,
 )
 async def create_newsletter(
     payload: NewsletterCreate,
@@ -37,15 +39,14 @@ async def create_newsletter(
     await db.commit()
     await db.refresh(newsletter)
 
-    return {
-        "id": newsletter.id,
-        "message": "Newsletter created successfully",
-        "status": newsletter.status,
-    }
+    return newsletter
 
 
 @router.get(
-    "/", dependencies=[Depends(require_admin)], response_model=List[NewsletterResponse]
+    "/list_newsletter",
+    dependencies=[Depends(require_admin)],
+    response_model=List[NewsletterResponse],
+    status_code=status.HTTP_200_OK,
 )
 async def list_newsletter(
     db: AsyncSession = Depends(get_async_db),
@@ -60,7 +61,7 @@ async def list_newsletter(
     return Newsletters
 
 
-@router.get("/{newsletter_id}", response_model=NewsletterResponse)
+@router.get("/get_newsletter/{newsletter_id}", response_model=NewsletterResponse)
 async def get_newsletter(
     newsletter_id: int,
     db: AsyncSession = Depends(get_async_db),
@@ -81,7 +82,7 @@ async def get_newsletter(
     return newsletter
 
 
-@router.put("/{newsletter_id}", response_model=NewsletterResponse)
+@router.put("/update_newsletter/{newsletter_id}", response_model=NewsletterResponse)
 async def update_newsletter(
     newsletter_id: int,
     payload: NewsletterUpdate,
@@ -118,7 +119,9 @@ async def update_newsletter(
     return newsletter
 
 
-@router.delete("/{newsletter_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/delete_newsletter/{newsletter_id}", status_code=status.HTTP_204_NO_CONTENT
+)
 async def delete_newsletter(
     newsletter_id: int,
     db: AsyncSession = Depends(get_async_db),

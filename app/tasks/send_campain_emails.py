@@ -13,7 +13,7 @@ from app.models.subscriber import Subscriber
 from app.services.send_email import send_email
 
 MAX_RETRIES = 3
-RETRY_DELAYS = [1, 2, 4]  # seconds, exponential backoff
+RETRY_DELAYS = [1, 2, 4]
 
 
 async def safe_send_email(
@@ -59,11 +59,9 @@ async def send_campaign_emails(campaign_id: int) -> None:
         if not campaign:
             return
 
-        # Update campaign status safely
         campaign.status = "sending"
         await db.commit()
 
-        # Fetch active subscribers
         result = await db.execute(
             select(Subscriber).where(
                 Subscriber.organization_id == campaign.organization_id,
@@ -74,7 +72,6 @@ async def send_campaign_emails(campaign_id: int) -> None:
 
         emails_to_send: list[tuple[Subscriber, CampaignEmail]] = []
 
-        # Create pending CampaignEmail entries
         for sub in subscribers:
             email_record = CampaignEmail(
                 campaign_id=campaign.id,
@@ -84,9 +81,8 @@ async def send_campaign_emails(campaign_id: int) -> None:
             db.add(email_record)
             emails_to_send.append((sub, email_record))
 
-        await db.commit()  # commit once before sending
+        await db.commit()
 
-        # Send emails
         for sub, email_record in emails_to_send:
             unsubscribe_link = f"https://yourdomain.com/api/subscribe/unsubscribe?token={sub.unsubscribe_token}"
 
@@ -99,9 +95,8 @@ async def send_campaign_emails(campaign_id: int) -> None:
             </p>
             """
 
-            # Pass only instance attributes (str/datetime) to functions
             success: bool = await safe_send_email(
-                to_email=sub.email,  # ✅ str, not Column
+                to_email=sub.email,
                 subject=campaign.newsletter.subject,
                 html_content=html_content,
                 sender_email=campaign.organization.sender_email,
@@ -110,7 +105,6 @@ async def send_campaign_emails(campaign_id: int) -> None:
 
             email_record.status = "sent" if success else "failed"
 
-        # Update campaign status safely
         total = len(emails_to_send)
         sent_count = sum(1 for _, e in emails_to_send if e.status == "sent")
 

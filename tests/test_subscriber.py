@@ -10,19 +10,17 @@ async def test_add_subscriber(client, test_user, test_organization):
     response = await client.post("/api/user_auth/login", json=login_data)
     token = response.json()["access_token"]
 
-    payload = {
-        "email": "subscriber@test.com",
-        "first_name": "Test",
-        "last_name": "User",
+    subscriber_data = {
+        "email": "rohitankolnerkar@gmail.com",
+        "organization_id": test_organization.id,
     }
 
     with patch("app.tasks.send_campain_emails.send_campaign_emails"):
         response = await client.post(
-            "/api/subscriber/",
-            json=payload,
+            "/api/subscriber/{test_organization.slug}",
+            json=subscriber_data,
             headers={"Authorization": f"Bearer {token}"},
         )
-
     assert response.status_code == 201
     data = response.json()
 
@@ -47,7 +45,7 @@ async def test_list_subscribers(client, test_user):
 
 
 @pytest.mark.asyncio
-async def test_list_subscriber(client, test_user, test_organization):
+async def test_list_subscriber123(client, test_user, test_organization):
     login_data = {"email": test_user.email, "password": "password123"}
     response = await client.post("/api/user_auth/login", json=login_data)
     token = response.json()["access_token"]

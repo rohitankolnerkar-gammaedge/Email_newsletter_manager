@@ -94,9 +94,7 @@ async def test_user(db_session, test_organization):
 
 @pytest_asyncio.fixture
 async def test_newsletter(test_user, db_session: AsyncSession):
-    """
-    Creates a newsletter in draft status for testing.
-    """
+
     newsletter = Newsletter(
         subject="Test Newsletter",
         content="Test content",

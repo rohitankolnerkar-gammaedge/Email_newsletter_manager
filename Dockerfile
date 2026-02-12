@@ -29,7 +29,7 @@ RUN pip install --no-cache-dir pytest pytest-asyncio httpx
 CMD ["pytest", "-v"]
 
 # ----------------------
-# Stage 3: Production
+
 # ----------------------
 FROM base AS prod
 

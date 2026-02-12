@@ -3,12 +3,9 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_send_newsletter_success(
-    client, test_user, test_organization, test_newsletter
+    client, test_user, test_organization, test_newsletter, db_session
 ):
-    """
-    Test sending a newsletter as a campaign successfully.
-    """
-    # Login first
+
     login_data = {"email": test_user.email, "password": "password123"}
     response = await client.post("/api/user_auth/login", json=login_data)
     token = response.json()["access_token"]
@@ -22,27 +19,23 @@ async def test_send_newsletter_success(
     assert response_campaign.status_code == 200
     data = response_campaign.json()
 
-    # Validate response
     assert "id" in data
     assert data["newsletter_id"] == test_newsletter.id
     assert data["organization_id"] == test_user.organization_id
     assert data["status"] == "pending"
     assert data["created_by"] == test_user.id
-
-    # Check that the newsletter status is now 'locked'
+    await db_session.refresh(test_newsletter)
     assert test_newsletter.status == "locked"
 
 
 @pytest.mark.asyncio
 async def test_send_newsletter_not_found(client, test_user):
-    """
-    Test sending a newsletter that does not exist.
-    """
+
     login_data = {"email": test_user.email, "password": "password123"}
     response = await client.post("/api/user_auth/login", json=login_data)
     token = response.json()["access_token"]
 
-    payload = {"newsletter_id": 9999}  # Assuming this ID does not exist
+    payload = {"newsletter_id": 9999}
 
     response_campaign = await client.post(
         "/api/campain/", json=payload, headers={"Authorization": f"Bearer {token}"}
@@ -55,14 +48,11 @@ async def test_send_newsletter_not_found(client, test_user):
 
 @pytest.mark.asyncio
 async def test_send_newsletter_already_used(client, test_user, test_newsletter):
-    """
-    Test sending a newsletter that is already used/locked.
-    """
+
     login_data = {"email": test_user.email, "password": "password123"}
     response = await client.post("/api/user_auth/login", json=login_data)
     token = response.json()["access_token"]
 
-    # First, set newsletter status to something other than draft
     test_newsletter.status = "locked"
 
     payload = {"newsletter_id": test_newsletter.id}

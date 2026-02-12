@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_create_newsletter(client, test_user):
-    # Login to get token
+
     login_data = {"email": test_user.email, "password": "password123"}
     response = await client.post("/api/user_auth/login", json=login_data)
     token = response.json()["access_token"]
@@ -48,7 +48,6 @@ async def test_get_newsletter(client, test_user):
     response = await client.post("/api/user_auth/login", json=login_data)
     token = response.json()["access_token"]
 
-    # First, create a newsletter to get
     payload = {"subject": "Get Test", "content": "Content for get test"}
     response_create = await client.post(
         "/api/newsletter/create_newsletter",
@@ -57,7 +56,6 @@ async def test_get_newsletter(client, test_user):
     )
     newsletter_id = response_create.json()["id"]
 
-    # Now get the newsletter
     response_get = await client.get(
         f"/api/newsletter/get_newsletter/{newsletter_id}",
         headers={"Authorization": f"Bearer {token}"},
@@ -76,7 +74,6 @@ async def test_update_newsletter(client, test_user):
     response = await client.post("/api/user_auth/login", json=login_data)
     token = response.json()["access_token"]
 
-    # Create newsletter first
     payload_create = {"subject": "Original", "content": "Original content"}
     response_create = await client.post(
         "/api/newsletter/create_newsletter",
@@ -85,7 +82,6 @@ async def test_update_newsletter(client, test_user):
     )
     newsletter_id = response_create.json()["id"]
 
-    # Update newsletter
     payload_update = {"subject": "Updated", "content": "Updated content"}
     response_update = await client.put(
         f"/api/newsletter/update_newsletter/{newsletter_id}",
@@ -107,7 +103,6 @@ async def test_delete_newsletter(client, test_user):
     response = await client.post("/api/user_auth/login", json=login_data)
     token = response.json()["access_token"]
 
-    # Create newsletter first
     payload_create = {"subject": "Delete Test", "content": "Content to delete"}
     response_create = await client.post(
         "/api/newsletter/create_newsletter",
@@ -116,7 +111,6 @@ async def test_delete_newsletter(client, test_user):
     )
     newsletter_id = response_create.json()["id"]
 
-    # Delete newsletter
     response_delete = await client.delete(
         f"/api/newsletter/delete_newsletter/{newsletter_id}",
         headers={"Authorization": f"Bearer {token}"},
@@ -124,7 +118,6 @@ async def test_delete_newsletter(client, test_user):
 
     assert response_delete.status_code == 204
 
-    # Check that it no longer exists
     response_get = await client.get(
         f"/api/newsletter/get_newsletter/{newsletter_id}",
         headers={"Authorization": f"Bearer {token}"},

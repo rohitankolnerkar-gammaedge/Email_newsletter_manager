@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 
 
@@ -8,16 +10,19 @@ async def test_add_subscriber(client, test_user, test_organization):
     response = await client.post("/api/user_auth/login", json=login_data)
     token = response.json()["access_token"]
 
-    subscriber_data = {
-        "email": "rohitankolnerkar@gmail.com",
-        "organization_id": test_organization.id,
+    payload = {
+        "email": "subscriber@test.com",
+        "first_name": "Test",
+        "last_name": "User",
     }
 
-    response = await client.post(
-        f"/api/subscriber/subscribe/{test_organization.slug}",
-        json=subscriber_data,
-        headers={"Authorization": f"Bearer {token}"},
-    )
+    with patch("app.tasks.send_campain_emails.send_campaign_emails"):
+        response = await client.post(
+            "/api/subscriber/",
+            json=payload,
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
     assert response.status_code == 201
     data = response.json()
 

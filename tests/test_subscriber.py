@@ -17,7 +17,7 @@ async def test_add_subscriber(client, test_user, test_organization):
 
     with patch("app.tasks.send_campain_emails.send_campaign_emails"):
         response = await client.post(
-            f"/api/subscriber/{test_organization.slug}",
+            f"/api/subscriber/subscribe/{test_organization.slug}",
             json=subscriber_data,
             headers={"Authorization": f"Bearer {token}"},
         )

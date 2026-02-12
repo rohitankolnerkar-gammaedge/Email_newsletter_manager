@@ -16,39 +16,36 @@ jobs:
       DOCKER_IMAGE: rohitankolnerkargamma/email-newsletter-manager
 
     steps:
-      # 1️⃣ Checkout code
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up Python (for local test dependencies)
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.14
 
-      # 3️⃣ Build test Docker container
       - name: Build Docker image for testing
         run: |
           docker build --target test -t newsletter-manager-test .
 
-      # 4️⃣ Run tests inside Docker
+    
       - name: Run tests
         run: |
           docker run --rm newsletter-manager-test pytest -v
 
-      # 5️⃣ Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 6️⃣ Build final Docker image
+      
       - name: Build final Docker image
         run: |
           docker build -t $DOCKER_IMAGE:latest -t $DOCKER_IMAGE:${{ github.sha }} .
 
-      # 7️⃣ Push Docker images
+    
       - name: Push Docker images
         run: |
           docker push $DOCKER_IMAGE:latest

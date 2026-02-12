@@ -7,12 +7,14 @@ from app.db.session import get_async_db
 from app.models.campain import Campaign
 from app.models.newsletter import Newsletter
 from app.schemas.campain import CampaignCreate, CampaignResponse
+from app.services.api_rate_limiter import user_rate_limit
 from app.tasks.send_campain_emails import send_campaign_emails
 
 router = APIRouter()
 
 
 @router.post("/", response_model=CampaignResponse)
+@user_rate_limit(limit=10, window=60)
 async def send_newsletter(
     payload: CampaignCreate,
     background_tasks: BackgroundTasks,

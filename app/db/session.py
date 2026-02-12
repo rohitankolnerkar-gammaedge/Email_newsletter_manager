@@ -12,6 +12,7 @@ if DATABASE_URL:
         bind=engine,
         class_=AsyncSession,
         expire_on_commit=False,
+        connect_args={"statement_cache_size": 0},
     )
 
 

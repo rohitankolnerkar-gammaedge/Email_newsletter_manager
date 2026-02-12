@@ -16,6 +16,7 @@ from app.schemas.subscriber import (
     SubscriberCreate,
     Subscriberlist,
 )
+from app.services.api_rate_limiter import user_rate_limit
 from app.services.confirmation_email import send_confirmation_email
 
 router = APIRouter()
@@ -26,6 +27,7 @@ router = APIRouter()
     response_model=SubscribePublicResponse,
     status_code=status.HTTP_201_CREATED,
 )
+@user_rate_limit(limit=10, window=60)
 async def subscribe(
     company_slug: str,
     payload: SubscriberCreate,
@@ -86,6 +88,7 @@ async def subscribe(
 
 
 @router.get("/confirm", status_code=status.HTTP_200_OK)
+@user_rate_limit(limit=10, window=60)
 async def confirm_subscription(token: str, db: AsyncSession = Depends(get_async_db)):
     result = await db.execute(
         select(Subscriber).where(Subscriber.confirmation_token == token)
@@ -118,6 +121,7 @@ async def confirm_subscription(token: str, db: AsyncSession = Depends(get_async_
     dependencies=[Depends(require_admin)],
     response_model=Subscriberlist,
 )
+@user_rate_limit(limit=10, window=60)
 async def get_subscriber_list(
     db: AsyncSession = Depends(get_async_db),
     current_user: User = Depends(require_admin),
@@ -139,6 +143,7 @@ async def get_subscriber_list(
     dependencies=[Depends(require_admin)],
     response_model=Subscriberlist,
 )
+@user_rate_limit(limit=10, window=60)
 async def get_subscriber_list_by_slug(
     slug: str,
     db: AsyncSession = Depends(get_async_db),

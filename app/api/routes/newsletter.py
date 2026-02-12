@@ -13,6 +13,7 @@ from app.schemas.newsletter import (
     NewsletterResponse,
     NewsletterUpdate,
 )
+from app.services.api_rate_limiter import user_rate_limit
 
 router = APIRouter()
 
@@ -23,6 +24,7 @@ router = APIRouter()
     status_code=status.HTTP_201_CREATED,
     response_model=NewsletterResponse,
 )
+@user_rate_limit(limit=10, window=60)
 async def create_newsletter(
     payload: NewsletterCreate,
     db: AsyncSession = Depends(get_async_db),
@@ -48,6 +50,7 @@ async def create_newsletter(
     response_model=List[NewsletterResponse],
     status_code=status.HTTP_200_OK,
 )
+@user_rate_limit(limit=10, window=60)
 async def list_newsletter(
     db: AsyncSession = Depends(get_async_db),
     current_user: User = Depends(require_admin),
@@ -62,6 +65,7 @@ async def list_newsletter(
 
 
 @router.get("/get_newsletter/{newsletter_id}", response_model=NewsletterResponse)
+@user_rate_limit(limit=10, window=60)
 async def get_newsletter(
     newsletter_id: int,
     db: AsyncSession = Depends(get_async_db),
@@ -83,6 +87,7 @@ async def get_newsletter(
 
 
 @router.put("/update_newsletter/{newsletter_id}", response_model=NewsletterResponse)
+@user_rate_limit(limit=10, window=60)
 async def update_newsletter(
     newsletter_id: int,
     payload: NewsletterUpdate,
@@ -122,6 +127,7 @@ async def update_newsletter(
 @router.delete(
     "/delete_newsletter/{newsletter_id}", status_code=status.HTTP_204_NO_CONTENT
 )
+@user_rate_limit(limit=10, window=60)
 async def delete_newsletter(
     newsletter_id: int,
     db: AsyncSession = Depends(get_async_db),

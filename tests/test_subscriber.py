@@ -15,7 +15,7 @@ async def test_add_subscriber(client, test_user, test_organization):
         "organization_id": test_organization.id,
     }
 
-    with patch("app.tasks.send_campain_emails.send_campaign_emails"):
+    with patch("app.routes.subscriber.send_email"):
         response = await client.post(
             f"/api/subscriber/subscribe/{test_organization.slug}",
             json=subscriber_data,

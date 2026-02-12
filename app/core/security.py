@@ -13,9 +13,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_async_db
 from app.models.users import User
 
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 
 pwd_context = CryptContext(

@@ -1,10 +1,15 @@
 import os
 
 from dotenv import load_dotenv
-
-load_dotenv()
 from redis.asyncio import Redis
 
-REDIS_URL = os.getenv("REDIS_URL")
+load_dotenv()
 
-redis_client = Redis.from_url(REDIS_URL, decode_responses=True)
+REDIS_URL = os.getenv("REDIS_URL")
+if not REDIS_URL:
+    raise RuntimeError("REDIS_URL not found in environment")
+
+redis_client = Redis.from_url(
+    REDIS_URL,
+    decode_responses=True,
+)

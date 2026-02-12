@@ -13,7 +13,7 @@ async def test_send_newsletter_success(
 
     payload = {"newsletter_id": test_newsletter.id}
 
-    with patch("app.routes.campain.send_campaign_emails"):
+    with patch("app.api.routes.campain.send_campaign_emails"):
         response_campaign = await client.post(
             "/api/campain/",
             json=payload,
@@ -41,7 +41,7 @@ async def test_send_newsletter_not_found(client, test_user):
 
     payload = {"newsletter_id": 9999}
 
-    with patch("app.routes.campain.send_campaign_emails"):
+    with patch("app.api.routes.campain.send_campaign_emails"):
         response_campaign = await client.post(
             "/api/campain/",
             json=payload,
@@ -63,7 +63,7 @@ async def test_send_newsletter_already_used(client, test_user, test_newsletter):
 
     payload = {"newsletter_id": test_newsletter.id}
 
-    with patch("app.routes.campain.send_campaign_emails"):
+    with patch("app.api.routes.campain.send_campaign_emails"):
         response_campaign = await client.post(
             "/api/campain/",
             json=payload,

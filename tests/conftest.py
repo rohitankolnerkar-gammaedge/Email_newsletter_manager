@@ -1,4 +1,7 @@
 # tests/conftest.py
+import os
+
+os.environ["TESTING"] = "true"
 from datetime import datetime, timezone
 
 import pytest_asyncio
@@ -55,6 +58,25 @@ async def client():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
+
+
+from unittest.mock import patch
+
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def disable_rate_limiters():
+    with patch(
+        "app.api.routes.campain.user_rate_limit", lambda *a, **k: lambda f: f
+    ), patch(
+        "app.api.routes.newsletter.user_rate_limit", lambda *a, **k: lambda f: f
+    ), patch(
+        "app.api.routes.subscriber.user_rate_limit", lambda *a, **k: lambda f: f
+    ), patch(
+        "app.api.routes.admin_auth.rate_limiter", lambda *a, **k: lambda f: f
+    ):
+        yield
 
 
 @pytest_asyncio.fixture

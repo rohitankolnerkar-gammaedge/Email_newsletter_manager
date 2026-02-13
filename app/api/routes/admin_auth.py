@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,7 +14,9 @@ router = APIRouter()
 
 @router.post("/register", response_model=dict)
 @rate_limiter(limit=5, window=60, prefix="registration")
-async def register(user: UserCreate, db: AsyncSession = Depends(get_async_db)):
+async def register(
+    request: Request, user: UserCreate, db: AsyncSession = Depends(get_async_db)
+):
 
     result = await db.execute(select(User).where(User.email == user.email))
     existing = result.scalar_one_or_none()
@@ -37,7 +39,9 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_async_db)):
 
 @router.post("/login", response_model=Token)
 @rate_limiter(limit=5, window=60, prefix="login")
-async def login(payload: UserLogin, db: AsyncSession = Depends(get_async_db)):
+async def login(
+    request: Request, payload: UserLogin, db: AsyncSession = Depends(get_async_db)
+):
     result = await db.execute(select(User).where(User.email == payload.email))
     user = result.scalar_one_or_none()
 

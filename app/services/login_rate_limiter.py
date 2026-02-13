@@ -1,4 +1,5 @@
 import functools
+import os
 
 from fastapi import HTTPException, Request
 
@@ -9,16 +10,22 @@ def rate_limiter(limit: int, window: int, prefix: str = "rate"):
     def decorator(func):
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
-            current_user: Request | None = kwargs.get("current_user")
-            if current_user is None:
-                for ar in args:
-                    if isinstance(ar, Request):
-                        current_user = ar
+            if os.getenv("TESTING") == "true":
+                return await func(*args, **kwargs)
+            request: Request | None = kwargs.get("request")
+
+            if request is None:
+                for arg in args:
+                    if isinstance(arg, Request):
+                        request = arg
                         break
-            if current_user is None:
+
+            if request is None:
                 raise RuntimeError("Request object not found in route")
-            identifier = current_user.client.host
+
+            identifier = request.client.host
             key = f"{prefix}:{identifier}"
+
             current = await redis_client.incr(key)
 
             if current == 1:

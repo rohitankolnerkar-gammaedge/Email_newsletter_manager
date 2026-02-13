@@ -1,3 +1,4 @@
+import os
 from functools import wraps
 
 from fastapi import HTTPException, Request
@@ -10,6 +11,8 @@ def user_rate_limit(limit: int, window: int, prefix: str = "user"):
 
         @wraps(func)
         async def wrapper(*args, **kwargs):
+            if os.getenv("TESTING") == "true":
+                return await func(*args, **kwargs)
 
             request: Request | None = kwargs.get("request")
             current_user = kwargs.get("current_user")

@@ -54,14 +54,4 @@ jobs:
           docker push $DOCKER_IMAGE:latest
           docker push $DOCKER_IMAGE:${{ github.sha }}
 
-      - name: Install Railway CLI
-        run: |
-          curl -sSL https://raw.githubusercontent.com/railwayapp/cli/master/install.sh | sh
-          railway --version
-
-     
-      - name: Deploy to Railway
-        run: |
-          railway up 
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    

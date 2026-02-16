@@ -14,7 +14,6 @@ jobs:
 
     env:
       DOCKER_IMAGE: rohitankolnerkargamma/email-newsletter-manager
-      RAILWAY_PROJECT_ID: c12f94f5-a7f4-4278-9d14-4fd1a15cb828
 
     steps:
       # 1️⃣ Checkout repository
@@ -64,6 +63,6 @@ jobs:
       # 9️⃣ Deploy to Railway
       - name: Deploy to Railway
         run: |
-          railway up -- --yes --project $RAILWAY_PROJECT_ID
+          railway up --yes
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

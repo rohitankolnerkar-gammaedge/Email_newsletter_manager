@@ -1,14 +1,14 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import require_admin
 from app.db.session import get_async_db
-from app.models.campain import Campaign
+from app.models.campaign import Campaign
 from app.models.newsletter import Newsletter
 from app.schemas.campain import CampaignCreate, CampaignResponse
 from app.services.api_rate_limiter import user_rate_limit
-from app.tasks.send_campain_emails import send_campaign_emails
+from app.tasks.send_campaign_emails import send_campaign_emails
 
 router = APIRouter()
 
@@ -17,7 +17,6 @@ router = APIRouter()
 @user_rate_limit(limit=10, window=60)
 async def send_newsletter(
     payload: CampaignCreate,
-    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_async_db),
     current_user=Depends(require_admin),
 ):
@@ -43,11 +42,10 @@ async def send_newsletter(
     )
 
     newsletter.status = "locked"
-
     db.add(campaign)
     await db.commit()
     await db.refresh(campaign)
 
-    background_tasks.add_task(send_campaign_emails, campaign.id)
+    send_campaign_emails.delay(campaign.id)
 
     return campaign

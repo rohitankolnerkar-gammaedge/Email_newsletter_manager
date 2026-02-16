@@ -2,6 +2,9 @@
 import os
 
 os.environ["TESTING"] = "true"
+from app.core.celery_app import celery_app
+
+celery_app.conf.task_always_eager = True
 from datetime import datetime, timezone
 
 import pytest_asyncio

@@ -3,24 +3,33 @@ from sqlalchemy.orm import sessionmaker
 
 from app.core.config import DATABASE_URL
 
-engine = None
-TestingSessionLocal = None
+# Create async engine, safe for PgBouncer
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=True,
+    connect_args={"statement_cache_size": 0},  # disables prepared statements
+)
 
-if DATABASE_URL:
-    engine = create_async_engine(DATABASE_URL, echo=True)
-    TestingSessionLocal = sessionmaker(
-        bind=engine,
-        class_=AsyncSession,
-        expire_on_commit=False,
-        connect_args={"statement_cache_size": 0},
-    )
-
-
+# Async session factory
 SessionLocal = async_sessionmaker(
-    bind=engine, expire_on_commit=False, autoflush=False, autocommit=False
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autoflush=False,
+    autocommit=False,
+)
+
+# For tests if needed
+TestingSessionLocal = async_sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autoflush=False,
+    autocommit=False,
 )
 
 
+# Dependency
 async def get_async_db():
     async with SessionLocal() as session:
         try:

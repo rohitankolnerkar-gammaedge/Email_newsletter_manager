@@ -53,10 +53,7 @@ jobs:
           railway --version
 
       
-      - name: Log in to Railway
-        run: railway login
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      
 
       - name: Deploy to Railway
         run: |

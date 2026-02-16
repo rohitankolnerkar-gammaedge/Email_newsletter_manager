@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import require_admin
 from app.db.session import get_async_db
-from app.models.campain import Campaign
+from app.models.campaign import Campaign
 from app.models.newsletter import Newsletter
 from app.schemas.campain import CampaignCreate, CampaignResponse
 from app.services.api_rate_limiter import user_rate_limit

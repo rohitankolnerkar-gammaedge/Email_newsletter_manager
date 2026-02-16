@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.db.session import SessionLocal
-from app.models.campain import Campaign
+from app.models.campaign import Campaign
 from app.models.campain_email import CampaignEmail
 from app.models.subscriber import Subscriber
 from app.services.send_email import send_email

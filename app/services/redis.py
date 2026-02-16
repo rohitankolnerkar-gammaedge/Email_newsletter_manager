@@ -11,3 +11,8 @@ if REDIS_URL:
         REDIS_URL,
         decode_responses=True,
     )
+redis_client = Redis.from_url(
+    REDIS_URL,
+    decode_responses=True,
+    socket_keepalive=True,  # keeps idle connections alive
+)

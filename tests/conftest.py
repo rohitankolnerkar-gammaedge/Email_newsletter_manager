@@ -2,7 +2,7 @@ import os
 
 os.environ["TESTING"] = "true"
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 import pytest_asyncio
@@ -32,12 +32,6 @@ TestingSessionLocal = sessionmaker(
     class_=AsyncSession,
     expire_on_commit=False,
 )
-
-
-@pytest_asyncio.fixture(autouse=True)
-def mock_redis():
-    with patch("app.services.redis.redis_client", new_callable=AsyncMock):
-        yield
 
 
 @pytest_asyncio.fixture(autouse=True)

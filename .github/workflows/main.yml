@@ -64,6 +64,6 @@ jobs:
       # 9️⃣ Deploy to Railway
       - name: Deploy to Railway
         run: |
-          railway up --yes --project $RAILWAY_PROJECT_ID
+          railway up -- --yes --project $RAILWAY_PROJECT_ID
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

@@ -16,9 +16,11 @@ jobs:
       DOCKER_IMAGE: rohitankolnerkargamma/email-newsletter-manager
 
     steps:
+     
       - name: Checkout repository
         uses: actions/checkout@v3
 
+   
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -32,6 +34,7 @@ jobs:
         run: |
           docker run --rm newsletter-manager-test pytest -v
 
+     
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -42,21 +45,20 @@ jobs:
         run: |
           docker build -t $DOCKER_IMAGE:latest -t $DOCKER_IMAGE:${{ github.sha }} .
 
+      
       - name: Push Docker images
         run: |
           docker push $DOCKER_IMAGE:latest
           docker push $DOCKER_IMAGE:${{ github.sha }}
 
+ 
       - name: Install Railway CLI
         run: |
           curl -sSL https://raw.githubusercontent.com/railwayapp/cli/master/install.sh | sh
           railway --version
 
-      
-      
-
       - name: Deploy to Railway
         run: |
-          railway up --branch main --environment production
+          railway up -- --branch main --environment production
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

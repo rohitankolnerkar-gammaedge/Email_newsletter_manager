@@ -1,9 +1,10 @@
-# tests/conftest.py
 import os
 
 os.environ["TESTING"] = "true"
 from datetime import datetime, timezone
+from unittest.mock import AsyncMock, patch
 
+import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -34,6 +35,12 @@ TestingSessionLocal = sessionmaker(
 
 
 @pytest_asyncio.fixture(autouse=True)
+def mock_redis():
+    with patch("app.services.redis.redis_client", new_callable=AsyncMock):
+        yield
+
+
+@pytest_asyncio.fixture(autouse=True)
 async def prepare_database():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -58,11 +65,6 @@ async def client():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
-
-
-from unittest.mock import patch
-
-import pytest
 
 
 @pytest.fixture(autouse=True)
